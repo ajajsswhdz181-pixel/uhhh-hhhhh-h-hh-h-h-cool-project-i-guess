@@ -1,0 +1,17 @@
+{
+  "name": "mcp-penguinmod-bridge",
+  "version": "1.0.0",
+  "private": true,
+  "description": "An MCP server on Cloudflare Workers that exposes tools defined inside a PenguinMod / TurboWarp project.",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail",
+    "check": "node --check src/index.js && node --check mcp-bridge-extension.js && node --check scripts/ws-check.mjs",
+    "ws-check": "node scripts/ws-check.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}
