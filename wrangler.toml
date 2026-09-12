@@ -1,14 +1,17 @@
 name = "tricepbicept123"
 main = "src/index.js"
-compatibility_date = "2026-04-07" 
-# Optional. Uncomment and set to require a shared-secret bearer token on
-# both the /mcp endpoint (Authorization: Bearer <token>) and the /ws
-# endpoint (?token=<token> query param, since browser WebSocket clients
-# can't set custom headers). Leave unset while testing locally.
-# [vars]
-# MCP_AUTH_TOKEN = "change-me"
-# CALL_TIMEOUT_MS = "55000"
-# MANIFEST_TIMEOUT_MS = "5000" 
+compatibility_date = "2026-04-07"
+
+# Logs in the Cloudflare dashboard (Workers -> your worker -> Logs) and in
+# `wrangler tail`. Leave this on: when a WebSocket client reports 1006, the
+# Worker's log line is usually the fastest explanation.
+[observability]
+enabled = true
+
+# The Durable Object that holds the live WebSocket, the in-flight tool calls
+# and the cached tool manifest. Without this binding the Worker cannot reach
+# the object at all, and every /ws upgrade fails with a 500 (which a
+# WebSocket client shows as 1006).
 [[durable_objects.bindings]]
 name = "MCP_BRIDGE"
 class_name = "McpBridge"
@@ -16,3 +19,21 @@ class_name = "McpBridge"
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["McpBridge"]
+
+# Optional settings. Uncomment the block and the keys you want.
+#
+# MCP_AUTH_TOKEN       Shared secret. When set, every request must carry it:
+#                      the /mcp endpoint via `Authorization: Bearer <token>`,
+#                      and the WebSocket via `?token=<token>` on the URL
+#                      (browser WebSocket clients cannot set headers).
+#                      Setting this and then forgetting the ?token= is the
+#                      single most common cause of a 1006 against this Worker.
+#                      Prefer `wrangler secret put MCP_AUTH_TOKEN` over putting
+#                      the value in this file, which is committed to git.
+# CALL_TIMEOUT_MS      How long a tools/call waits on the extension (default 55000).
+# MANIFEST_TIMEOUT_MS  How long a manifest request waits (default 5000).
+#
+# [vars]
+# MCP_AUTH_TOKEN = "change-me"
+# CALL_TIMEOUT_MS = "55000"
+# MANIFEST_TIMEOUT_MS = "5000"
